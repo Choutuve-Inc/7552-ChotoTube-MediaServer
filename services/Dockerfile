@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.5
+FROM python:3.7.3-stretch
 
 # set work directory
 WORKDIR /usr/src/app

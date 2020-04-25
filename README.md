@@ -14,8 +14,9 @@ docker-compose up -d
 
 ## Remove conteiner:
 ```
-docker-compose down -v
+docker-compose down
 ```
+add the -v flag to remove all volumes too
 
 
 ## Create the table:
