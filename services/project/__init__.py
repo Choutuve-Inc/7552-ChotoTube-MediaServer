@@ -48,10 +48,12 @@ class Video(db.Model):
 	__tablename__ = "videos"
 
 	id = db.Column(db.Integer, primary_key=True)
-	video_name = db.Column(db.String(64), unique=True, nullable=False)
-	video_size = db.Column(db.Integer)
+	user = db.Column(db.String(64), nullable=False)
+	title = db.Column(db.String(64), nullable=False)
+	size = db.Column(db.Integer)
 	date_of_upload = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-	url = db.Column(db.String(128), unique=True, nullable=False)
+	url = db.Column(db.String(128), nullable=False)
+	thumbnail = db.Column(db.String(128), nullable=False)
 	
 	def __repr__(self):
 		return '<Video %r>' % self.video_name
@@ -63,21 +65,25 @@ def hello_world():
 	return jsonify(hello="world")
 
 @app.route("/videos",methods=['GET','POST'])
-@app.route("/videos/<string:name>",methods=['GET'])
-def videos(name=None):
+@app.route("/videos/<int:id>",methods=['GET'])
+def videos(id=None):
 	if request.method == 'POST':
-		content = request.json
-		name = content['name']
-		size = content['size']
-		url = content['url']
-		video = Video(video_name=name,video_size=size,url=url)
-		db.session.add(video)
-		db.session.commit()
-		return Response(status=200)
+		try:
+			content = request.json
+			title = content['title']
+			size = content['size']
+			url = content['url']
+			user = content['user']
+			thumbnail = content['thumbnail']
+			video = Video(title=title,size=size,url=url,user=user,thumbnail=thumbnail)
+			db.session.add(video)
+			db.session.commit()
+			return Response(status=200)
+		except Exception as e:
+			return Response(status=400)
 	elif request.method == 'GET':
-		print(name)
-		if name is not None:
-			video = Video.query.filter_by(video_name=name).first()
+		if id is not None:
+			video = Video.query.filter_by(id=id).first()
 			return jsonify(video)
 		else:
 			videos = Video.query.all()

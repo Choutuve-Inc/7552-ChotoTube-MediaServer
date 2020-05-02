@@ -1,23 +1,184 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  title: Chotube Media Server
-  description: Trabajo practico de taller 2.
-  version: 1.0.0
-host: api.example.com
-basePath: /v1
-schemes:
-  - https
-
+  version: '1.0.0'
+  title: 'Chotube Media Server'
+  description: ''
 paths:
-  /videos:
+
+  /videos/{id}:
+    parameters:
+    - name: id
+      in: path
+      description: identificador del video
+      required: true
+      type: integer
+    
     get:
-      summary: Returns a list of videos.
+      summary: Obtiene la informacion de un video por id
+      produces: 
+        - application/json
       responses:
         200:
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema: 
-                type: array
-                items: 
-                  type: string
+          description: Devuelve la informacion de un video si el id es valido
+          schema:
+            $ref: '#/definitions/Video_with_comments'
+        
+        404: 
+          description: No se encontro el video con la id pedida
+          schema:
+            $ref: '#/definitions/NotFoundMessage'
+  /videos:
+    post:
+      tags:
+        - video
+      summary: Agrega un nuevo video
+      operationId: addVideo
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Objeto video a ser agregado
+        required: true
+        schema:
+          $ref: '#/definitions/Video_post'
+      responses:
+        200: 
+          description: La operacion se llevo a cavo exitosamente
+        405:
+          description: Input invalido
+    get:
+      summary: Obtiene la informacion de un video por id
+      produces: 
+        - application/json
+      responses:
+        200:
+          description: Devuelve la informacion de un video si el id es valido
+          schema:
+            $ref: '#/definitions/Videos'
+    
+
+definitions:
+  NotFoundMessage:
+    type: string
+    example: No encontre lo que buscabas
+  Videos:
+    type: array
+    items:
+      $ref: '#/definitions/Video'
+    
+  Video:
+    type: object
+    required:
+      - user
+      - title
+      - date
+      - url
+      - thumbnail
+      - id
+    properties:
+      user:
+        type: string
+        example: Santiago Mariaro
+      title:
+        type: string
+        example: Mi video
+      date:
+        type: string
+        format: date-time
+        example: 1995-09-07T10:40:52Z
+      url:
+        type: string
+        example: video/name.mp4
+      thumbnail:
+        type: string
+        example: image/name.jpg
+      id:
+        type: integer
+        example: 5
+        
+  Video_post:
+    type: object
+    required:
+      - user
+      - title
+      - date
+      - url
+      - thumbnail
+    properties:
+      user:
+        type: string
+        example: Santiago Mariaro
+      title:
+        type: string
+        example: Mi video
+      date:
+        type: string
+        format: date-time
+        example: 1995-09-07T10:40:52Z
+      url:
+        type: string
+        example: video/name.mp4
+      thumbnail:
+        type: string
+        example: image/name.jpg
+  Video_with_comments:
+    type: object
+    required:
+      - user
+      - title
+      - date
+      - url
+      - thumbnail
+      - id
+      - comments
+    properties:
+      user:
+        type: string
+        example: Santiago Mariaro
+      title:
+        type: string
+        example: Mi video
+      date:
+        type: string
+        format: date-time
+        example: 1995-09-07T10:40:52Z
+      url:
+        type: string
+        example: video/name.mp4
+      thumbnail:
+        type: string
+        example: image/name.jpg
+      id:
+        type: integer
+        example: 5
+      comments:
+        type: array
+        items:
+          $ref:  '#/definitions/Comment'
+  Comment:
+    type: object
+    required:
+      - id_video
+      - user
+      - mesage
+      - date
+    properties:
+      user:
+        type: string
+        example: Santiago Mariaro
+      mesage:
+        type: string
+        example: Mi comentario
+      date:
+        type: string
+        format: date-time
+        example: 1995-09-07T10:40:52Z
+
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /Santiago39353535/Chotube_Maedia_Server/1.0.0
+schemes:
+ - https

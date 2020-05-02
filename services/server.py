@@ -14,8 +14,8 @@ def create_db():
 
 @cli.command("seed_db")
 def seed_db():
-    db.session.add(Video(video_name="Santiago",video_size=15,url="asds"))
-    db.session.add(Video(video_name="Marinaro",video_size=15,url="hhsh"))
+    db.session.add(Video(user="Santiago",size=15,url="asds",thumbnail='gdgf',title='primer video'))
+    db.session.add(Video(user="Santiago",size=15,url="sfsdf",thumbnail='gdfg',title='segundo video'))
     db.session.commit()
 
 
