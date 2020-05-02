@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask.json import JSONEncoder
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 app = Flask(__name__)
