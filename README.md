@@ -7,9 +7,14 @@ Trabajo practico Taller 2
 docker-compose build
 ```
 
-## Run the container:
+## first run db:
 ```
-docker-compose up -d
+docker-compose up -d db
+```
+
+## Second run the service
+```
+docker-compose up -d web
 ```
 
 ## Remove conteiner:
@@ -17,12 +22,6 @@ docker-compose up -d
 docker-compose down
 ```
 add the -v flag to remove all volumes too
-
-
-## Create the table:
-```
-docker-compose exec web python server.py create_db
-```
 
 ## Ensure the videos table was created:
 ```

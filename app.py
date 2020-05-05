@@ -1,15 +1,16 @@
+import os
 from flask import Flask, jsonify, request, json, Response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask_swagger_ui import get_swaggerui_blueprint
 from flask.json import JSONEncoder
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 app = Flask(__name__)
-app.config.from_object("project.config.Config")
+app.config.from_object("config.Config")
 db = SQLAlchemy(app)
 
+port = int(os.environ.get("PORT", 5000))
 
 #JSON ENCODER
 class AlchemyEncoder(json.JSONEncoder):
@@ -29,19 +30,6 @@ class AlchemyEncoder(json.JSONEncoder):
 
 app.json_encoder = AlchemyEncoder
 
-
-### swagger specific ###
-SWAGGER_URL = '/swagger'
-API_URL = '/static/swagger.yaml'
-SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Media server"
-    }
-)
-app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
-### end swagger specific ###
 
 
 class Video(db.Model):
@@ -89,3 +77,10 @@ def videos(id=None):
 			videos = Video.query.all()
 			return jsonify(videos)
 	return
+
+
+if __name__=='__main__':
+	db.drop_all()
+	db.create_all()
+	db.session.commit()
+	app.run(debug=True,host='0.0.0.0',port=port)
