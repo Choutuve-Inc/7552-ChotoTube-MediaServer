@@ -1,7 +1,7 @@
 import os
-from flask import Flask, jsonify, request, json, Response
+from flask import Flask, jsonify, request, json, Response, make_response
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, date
 from flask.json import JSONEncoder
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
@@ -38,8 +38,8 @@ class Video(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	user = db.Column(db.String(64), nullable=False)
 	title = db.Column(db.String(64), nullable=False)
-	size = db.Column(db.Integer)
-	date_of_upload = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+	size = db.Column(db.Float)
+	date = db.Column(db.DateTime, nullable=False)
 	url = db.Column(db.String(128), nullable=False)
 	thumbnail = db.Column(db.String(128), nullable=False)
 	
@@ -52,8 +52,8 @@ class Video(db.Model):
 def hello_world():
 	return jsonify(hello="world")
 
-@app.route("/videos",methods=['GET','POST'])
-@app.route("/videos/<int:id>",methods=['GET'])
+@app.route("/videos",methods=['GET','POST', 'DELETE'])
+@app.route("/videos/<int:id>",methods=['GET', 'DELETE'])
 def videos(id=None):
 	if request.method == 'POST':
 		try:
@@ -63,7 +63,9 @@ def videos(id=None):
 			url = content['url']
 			user = content['user']
 			thumbnail = content['thumbnail']
-			video = Video(title=title,size=size,url=url,user=user,thumbnail=thumbnail)
+			date = datetime.strptime(content['date'],'%Y-%m-%d').date()
+			print(date, flush=True)
+			video = Video(title=title,size=size,url=url,user=user,thumbnail=thumbnail,date=date)
 			db.session.add(video)
 			db.session.commit()
 			return Response(status=200)
@@ -76,6 +78,17 @@ def videos(id=None):
 		else:
 			videos = Video.query.all()
 			return jsonify(videos)
+	elif request.method == 'DELETE':
+		if id is not None:
+			video = Video.query.filter_by(id=id).first()
+			if video is not None:
+				db.session.delete(video)
+				db.session.commit()
+				return Response(status=200)
+			else:
+				return Response(status=400)
+		else:
+			return Response(status=400)
 	return
 
 
