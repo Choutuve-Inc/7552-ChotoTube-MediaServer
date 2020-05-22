@@ -39,9 +39,10 @@ class Video(db.Model):
 	user = db.Column(db.String(64), nullable=False)
 	title = db.Column(db.String(64), nullable=False)
 	size = db.Column(db.Float)
-	date = db.Column(db.DateTime, nullable=False)
+	date = db.Column(db.String(10), nullable=False)
 	url = db.Column(db.String(128), nullable=False)
 	thumbnail = db.Column(db.String(128), nullable=False)
+	description =  db.Column(db.String(256))
 	
 	def __repr__(self):
 		return '<Video %r>' % self.video_name
@@ -82,9 +83,9 @@ def videos(id=None):
 			url = content['url']
 			user = content['user']
 			thumbnail = content['thumbnail']
-			date = datetime.strptime(content['date'],'%Y-%m-%d').date()
-			print(date, flush=True)
-			video = Video(title=title,size=size,url=url,user=user,thumbnail=thumbnail,date=date)
+			date = content['date']
+			description = content['description']
+			video = Video(title=title,size=size,url=url,user=user,thumbnail=thumbnail,date=date,description=description)
 			db.session.add(video)
 			db.session.commit()
 			return Response(status=200)
