@@ -100,8 +100,8 @@ def videos(id=None):
 				'likes': cantidad_de_likes,
 				'dislike': cantidad_de_dislikes
 			}
-			comments = Comment.query.filter_by(video_id=id).all()
-			return jsonify(video,likes,comments)
+			comment = Comment.query.filter_by(video_id=id).all()
+			return jsonify(video_data=video,reactions=likes,comments=comment)
 		else:
 			videos = Video.query.all()
 			return jsonify(videos)
