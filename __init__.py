@@ -15,7 +15,6 @@ port = int(os.environ.get("PORT", 5000))
 
 app.json_encoder = AlchemyEncoder
 
-
 @app.route("/")
 def hello_world():
 	return jsonify(hello="world")
@@ -38,17 +37,25 @@ def videos(id=None):
 			return Response(status=400)
 	return
 
-@app.route("/likes",methods=['POST'])
-def likes():
+@app.route("/videos/<int:id>/likes",methods=['GET','POST'])
+def likes(id=None):
+	if (id is None):
+		return Response(status=404)
 	if request.method == 'POST':
 		content = request.json
-		return video.likeVideo(content)
+		return video.likeVideo(id,content)
+	if request.method == 'GET':
+		return video.getLikes(id)
 
-@app.route("/comments",methods=['POST'])
-def comments():
+@app.route("/videos/<int:id>/comments",methods=['POST','GET'])
+def comments(id=None):
+	if (id is None):
+		return Response(status=404)
 	if request.method == 'POST':
 		content = request.json
-		return video.postComment(content)
+		return video.postComment(id,content)
+	if request.method == 'GET':
+		return video.getComments(id)
 
 if __name__=='__main__':
 	app.run(debug=True,host='0.0.0.0',port=port)

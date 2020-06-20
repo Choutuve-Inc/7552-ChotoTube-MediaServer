@@ -1,6 +1,7 @@
 from db.data_base import Video, Like, Comment
 from flask import Flask, jsonify, request, json, Response, make_response
 from __init__ import app, db
+import sys
 
 def createVideo(content):
 	try:
@@ -22,14 +23,9 @@ def createVideo(content):
 
 def getVideoById(id):
 	video = Video.query.filter_by(id=id).first()
-	cantidad_de_likes = Like.query.filter_by(video_id=id,value=True).count()
-	cantidad_de_dislikes = Like.query.filter_by(video_id=id,value=False).count()
-	likes = {
-		'likes': cantidad_de_likes,
-		'dislike': cantidad_de_dislikes
-	}
-	comment = Comment.query.filter_by(video_id=id).all()
-	return jsonify(video_data=video,reactions=likes,comments=comment)
+	if video is None:
+		return Response(status=404)
+	return jsonify(video_data=video)
 
 def getAllVideos():
 	videos = Video.query.all()
@@ -37,6 +33,7 @@ def getAllVideos():
 
 def deleteVideo(id):
 	video = Video.query.filter_by(id=id).first()
+	print(video,file=sys.stderr)
 	if video is not None:
 		db.session.delete(video)
 		db.session.commit()
@@ -44,8 +41,7 @@ def deleteVideo(id):
 	else:
 		return Response(status=404)
 
-def likeVideo(content):
-	video_id = content['video_id']
+def likeVideo(video_id,content):
 	user = content['user']
 	value = content['value']
 	query = Like.query.filter_by(video_id=video_id,user=user).first()
@@ -60,8 +56,7 @@ def likeVideo(content):
 	db.session.commit()
 	return Response(status=200)
 
-def postComment(content):
-	video_id = content['video_id']
+def postComment(video_id,content):
 	user = content['user']
 	text = content['text']
 	query = Comment.query.filter_by(video_id=video_id,user=user).first()
@@ -72,3 +67,16 @@ def postComment(content):
 		return Response(status=200)
 	else:
 		return Response(status=400)
+
+def getLikes(id):
+	cantidad_de_likes = Like.query.filter_by(video_id=id,value=True).count()
+	cantidad_de_dislikes = Like.query.filter_by(video_id=id,value=False).count()
+	likes = {
+		'likes': cantidad_de_likes,
+		'dislike': cantidad_de_dislikes
+	}
+	return jsonify(reactions=likes)
+
+def getComments(id):
+	comment = Comment.query.filter_by(video_id=id).all()
+	return jsonify(comments=comment)

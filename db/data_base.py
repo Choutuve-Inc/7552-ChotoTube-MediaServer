@@ -1,6 +1,7 @@
 from __init__ import db
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
 
 
 class Video(db.Model):
@@ -15,8 +16,11 @@ class Video(db.Model):
 	thumbnail = db.Column(db.String(128), nullable=False)
 	description =  db.Column(db.String(256))
 	
+	like = relationship("Like", cascade="all, delete-orphan")
+	comments = relationship("Comment", cascade="all, delete-orphan")
+
 	def __repr__(self):
-		return '<Video %r>' % self.video_name
+		return '<Video %r>' % self.title
 
 class Like(db.Model):
 	__tablename__="like"
@@ -37,6 +41,3 @@ class Comment(db.Model):
 	text = db.Column(db.String(256), nullable=False)
 	__table_args__ = (db.UniqueConstraint('video_id','user'),)
 
-db.drop_all()
-db.create_all()
-db.session.commit()
