@@ -1,6 +1,6 @@
-from db.data_base import Video, Like, Comment
+#from db.data_base import Video, Like, Comment
 from flask import Flask, jsonify, request, json, Response, make_response
-from __init__ import app, db
+from __init__ import app, db,Video, Like, Comment
 import sys
 
 def createVideo(content):
@@ -13,7 +13,8 @@ def createVideo(content):
 		thumbnail = content['thumbnail']
 		date = content['date']
 		description = content['description']
-		video = Video(title=title,size=size,url=url,user=user,thumbnail=thumbnail,date=date,description=description)
+		private = content['private']
+		video = Video(title=title,size=size,url=url,user=user,thumbnail=thumbnail,date=date,description=description,private=private)
 		db.session.add(video)
 		db.session.commit()
 		return Response(status=200)
@@ -25,7 +26,7 @@ def getVideoById(id):
 	video = Video.query.filter_by(id=id).first()
 	if video is None:
 		return Response(status=404)
-	return jsonify(video_data=video)
+	return jsonify(video)
 
 def getAllVideos():
 	videos = Video.query.all()
@@ -42,6 +43,9 @@ def deleteVideo(id):
 		return Response(status=404)
 
 def likeVideo(video_id,content):
+	video = Video.query.filter_by(id=video_id).first()
+	if video is None:
+		return Response(status=404)
 	user = content['user']
 	value = content['value']
 	query = Like.query.filter_by(video_id=video_id,user=user).first()
@@ -57,6 +61,9 @@ def likeVideo(video_id,content):
 	return Response(status=200)
 
 def postComment(video_id,content):
+	video = Video.query.filter_by(id=video_id).first()
+	if video is None:
+		return Response(status=404)
 	user = content['user']
 	text = content['text']
 	query = Comment.query.filter_by(video_id=video_id,user=user).first()
@@ -69,6 +76,9 @@ def postComment(video_id,content):
 		return Response(status=400)
 
 def getLikes(id):
+	video = Video.query.filter_by(id=id).first()
+	if video is None:
+		return Response(status=404)
 	cantidad_de_likes = Like.query.filter_by(video_id=id,value=True).count()
 	cantidad_de_dislikes = Like.query.filter_by(video_id=id,value=False).count()
 	likes = {
@@ -78,5 +88,8 @@ def getLikes(id):
 	return jsonify(reactions=likes)
 
 def getComments(id):
+	video = Video.query.filter_by(id=video_id).first()
+	if video is None:
+		return Response(status=404)
 	comment = Comment.query.filter_by(video_id=id).all()
 	return jsonify(comments=comment)
