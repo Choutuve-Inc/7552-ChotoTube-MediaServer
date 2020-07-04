@@ -70,7 +70,7 @@ def videos(id=None):
 			return video.getVideoById(id)
 		else:
 			content = request.json
-			friendList = content["friendList"]
+			friendList = content["friends"]
 			return video.getAllVideos(friendList)
 	elif request.method == 'DELETE':
 		if id is not None:
