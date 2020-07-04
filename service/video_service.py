@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, request, json, Response, make_response
 from __init__ import app, db,Video, Like, Comment
 import sys
+from sqlalchemy import or_
 
 def createVideo(content):
 	try:
@@ -28,8 +29,8 @@ def getVideoById(id):
 		return Response(status=404)
 	return jsonify(video)
 
-def getAllVideos():
-	videos = Video.query.all()
+def getAllVideos(friendList):
+	videos = Video.query.filter((Video.private==False) | (or_(*[Video.user.like(freind) for freind in friendList]))).all()
 	return jsonify(videos)
 
 def deleteVideo(id):

@@ -21,12 +21,12 @@ class Video(db.Model):
 	__tablename__ = "videos"
 
 	id = db.Column(db.Integer, primary_key=True)
-	user = db.Column(db.Integer, nullable=False)
-	title = db.Column(db.String(64), nullable=False)
+	user = db.Column(db.String(256),nullable=False)
+	title = db.Column(db.String(256),nullable=False)
 	size = db.Column(db.Float)
 	date = db.Column(db.String(10), nullable=False)
-	url = db.Column(db.String(128), nullable=False)
-	thumbnail = db.Column(db.String(128), nullable=False)
+	url =db.Column(db.String(256),nullable=False)
+	thumbnail = db.Column(db.String(256),nullable=False)
 	description =  db.Column(db.String(256))
 	private = db.Column(db.Boolean,nullable=False)
 	
@@ -41,7 +41,7 @@ class Like(db.Model):
 
 	id = db.Column(db.Integer, primary_key=True)
 	video_id = db.Column(db.Integer,db.ForeignKey('videos.id'),nullable=False)
-	user =  db.Column(db.Integer, nullable=False)
+	user =  db.Column(db.String(256),nullable=False)
 	value = db.Column(db.Boolean, nullable=False) #Like es true, dislike es false
 	__table_args__ = (db.UniqueConstraint('video_id','user'),)
 
@@ -51,7 +51,7 @@ class Comment(db.Model):
 
 	id = db.Column(db.Integer, primary_key=True)
 	video_id = db.Column(db.Integer,db.ForeignKey('videos.id'),nullable=False)
-	user = db.Column(db.Integer, nullable=False)
+	user = db.Column(db.String(256),nullable=False)
 	text = db.Column(db.String(256), nullable=False)
 	__table_args__ = (db.UniqueConstraint('video_id','user'),)
 
@@ -69,7 +69,9 @@ def videos(id=None):
 		if id is not None:
 			return video.getVideoById(id)
 		else:
-			return video.getAllVideos()
+			content = request.json
+			friendList = content["friendList"]
+			return video.getAllVideos(friendList)
 	elif request.method == 'DELETE':
 		if id is not None:
 			return video.deleteVideo(id)
