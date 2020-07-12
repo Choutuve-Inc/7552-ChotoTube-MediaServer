@@ -33,6 +33,10 @@ def getAllVideos(friendList):
 	videos = Video.query.filter((Video.private==False) | (or_(*[Video.user.like(freind) for freind in friendList]))).all()
 	return jsonify(videos)
 
+def getVideos():
+	videos = Video.query.all()
+	return jsonify(videos=videos)
+
 def deleteVideo(id):
 	video = Video.query.filter_by(id=id).first()
 	print(video,file=sys.stderr)
@@ -89,7 +93,7 @@ def getLikes(id):
 	return jsonify(reactions=likes)
 
 def getComments(id):
-	video = Video.query.filter_by(id=video_id).first()
+	video = Video.query.filter_by(id=id).first()
 	if video is None:
 		return Response(status=404)
 	comment = Comment.query.filter_by(video_id=id).all()

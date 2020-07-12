@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask, jsonify, request, json, Response, make_response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, date
@@ -7,6 +8,7 @@ import service.video_service as video
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
+import requests
 
 
 app = Flask(__name__)
@@ -69,9 +71,25 @@ def videos(id=None):
 		if id is not None:
 			return video.getVideoById(id)
 		else:
-			content = request.json
-			friendList = content["friends"]
-			return video.getAllVideos(friendList)
+			#content = request.json
+			#friendList = content["friends"]
+			#return video.getAllVideos(friendList)
+			token = request.headers.get('token')
+			body = {
+				"JWT": token
+			}
+			headers = {"Content-Type": 'application/json'}
+			data = json.dumps(body)
+			userType = requests.post("https://serene-shelf-10674.herokuapp.com/token",headers=headers, data=data)
+			if userType.status_code == 200:
+				if userType.text[1:6] == "admin":
+					return video.getVideos()
+				else:
+					content = request.json
+					friendList = content["friends"]
+					return video.getAllVideos(friendList)
+			else:
+				return Response(status=400)
 	elif request.method == 'DELETE':
 		if id is not None:
 			return video.deleteVideo(id)
