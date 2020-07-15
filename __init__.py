@@ -10,7 +10,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 import requests
 
-
 app = Flask(__name__)
 app.config.from_object("config.config.Config")
 db = SQLAlchemy(app)
@@ -31,6 +30,7 @@ class Video(db.Model):
 	thumbnail = db.Column(db.String(256),nullable=False)
 	description =  db.Column(db.String(256))
 	private = db.Column(db.Boolean,nullable=False)
+	weight = db.Column(db.Float,default=0)
 	
 	like = relationship("Like", cascade="all, delete-orphan")
 	comments = relationship("Comment", cascade="all, delete-orphan")
@@ -126,4 +126,7 @@ def ping():
 	return("Hello")
 
 if __name__=='__main__':
+	#db.drop_all()
+	#db.create_all()
+	#db.session.commit()
 	app.run(debug=True,host='0.0.0.0',port=port)

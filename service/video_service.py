@@ -3,6 +3,8 @@ from flask import Flask, jsonify, request, json, Response, make_response
 from __init__ import app, db,Video, Like, Comment
 import sys
 from sqlalchemy import or_
+import service.rules 
+from durable.lang import *
 
 def createVideo(content):
 	try:
@@ -35,7 +37,10 @@ def getAllVideos(friendList):
 
 def getVideos():
 	videos = Video.query.all()
-	return jsonify(videos=videos)
+	videosJson = jsonify(videos=videos).json
+	update_state('ranking', { 'event': 'weight', 'videos':videosJson})
+	app.logger.debug(get_state('ranking')['videos'])
+	return jsonify(get_state('ranking')['videos'])
 
 def deleteVideo(id):
 	video = Video.query.filter_by(id=id).first()
