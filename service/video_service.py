@@ -38,9 +38,10 @@ def getAllVideos(friendList):
 def getVideos():
 	videos = Video.query.all()
 	videosJson = jsonify(videos=videos).json
-	update_state('ranking', { 'event': 'weight', 'videos':videosJson})
+	update_state('ranking', { 'event': 'cantVideos', 'videos':videosJson})
 	app.logger.debug(get_state('ranking')['videos'])
 	return jsonify(get_state('ranking')['videos'])
+	#return jsonify(videos=videos)
 
 def deleteVideo(id):
 	video = Video.query.filter_by(id=id).first()

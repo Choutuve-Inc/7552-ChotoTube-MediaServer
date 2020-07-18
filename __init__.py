@@ -83,6 +83,7 @@ def videos(id=None):
 			userType = requests.post("https://serene-shelf-10674.herokuapp.com/token",headers=headers, data=data)
 			if userType.status_code == 200:
 				if userType.text[1:6] == "admin":
+					app.logger.debug("Get video")
 					return video.getVideos()
 				else:
 					content = request.json
