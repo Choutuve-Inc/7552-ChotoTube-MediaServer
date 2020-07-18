@@ -15,6 +15,7 @@ with ruleset('ranking'):
 
 	@when_all(s.event == 'reactions')
 	def countReaction(c):
+		app.logger.debug("Se cuenta los likes del video")
 		for video in c.s.videos['videos']:
 			likes = len(list(filter(lambda x: x['value']==True,video['like'])))
 			disLikes = len(list(filter(lambda x: x['value']==False,video['like'])))

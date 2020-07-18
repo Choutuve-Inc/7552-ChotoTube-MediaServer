@@ -33,13 +33,14 @@ def getVideoById(id):
 
 def getAllVideos(friendList):
 	videos = Video.query.filter((Video.private==False) | (or_(*[Video.user.like(freind) for freind in friendList]))).all()
-	return jsonify(videos)
+	videosJson = jsonify(videos=videos).json
+	update_state('ranking', { 'event': 'cantVideos', 'videos':videosJson})
+	return jsonify(get_state('ranking')['videos'])
 
 def getVideos():
 	videos = Video.query.all()
 	videosJson = jsonify(videos=videos).json
 	update_state('ranking', { 'event': 'cantVideos', 'videos':videosJson})
-	app.logger.debug(get_state('ranking')['videos'])
 	return jsonify(get_state('ranking')['videos'])
 	#return jsonify(videos=videos)
 
