@@ -117,13 +117,30 @@ def comments(id=None):
 
 @app.route("/ping")
 def ping():
-	db.drop_all()
-	db.create_all()
-	db.session.commit()
 	return("Hello")
 
+@app.route("/metrics/users/activity")
+def userActivity():
+	return video.getUsersActivity()
+
+@app.route("/metrics/users/comments")
+def userActivityComments():
+	return video.userActivityComments()
+
+@app.route("/metrics/videos/likes")
+def videosMostLiked():
+	return video.videosMostLiked()
+
+@app.route("/metrics/videos/dislikes")
+def videosMostDisliked():
+	return video.videosMostDisliked()
+
+@app.route("/metrics/videos/comments")
+def videosMostCommented():
+	return video.videosMostCommented()
+
 if __name__=='__main__':
-	db.drop_all()
-	db.create_all()
-	db.session.commit()
+	#db.drop_all()
+	#db.create_all()
+	#db.session.commit()
 	app.run(debug=True,host='0.0.0.0',port=port)

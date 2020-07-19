@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request, json, Response, make_response
 from __init__ import app, db,Video, Like, Comment
 import sys
-from sqlalchemy import or_
+from sqlalchemy import or_, func, desc
 import service.rules 
 from durable.lang import *
 
@@ -33,13 +33,13 @@ def getVideoById(id):
 
 def getAllVideos(friendList):
 	videos = Video.query.filter((Video.private==False) | (or_(*[Video.user.like(freind) for freind in friendList]))).all()
-	videosJson = jsonify(videos=videos).json
+	videosJson = jsonify(videos).json
 	update_state('ranking', { 'event': 'cantVideos', 'videos':videosJson})
 	return jsonify(get_state('ranking')['videos'])
 
 def getVideos():
 	videos = Video.query.all()
-	videosJson = jsonify(videos=videos).json
+	videosJson = jsonify(videos).json
 	update_state('ranking', { 'event': 'cantVideos', 'videos':videosJson})
 	return jsonify(get_state('ranking')['videos'])
 	#return jsonify(videos=videos)
@@ -101,3 +101,36 @@ def getComments(id):
 		return Response(status=404)
 	comment = Comment.query.filter_by(video_id=id).all()
 	return jsonify(comments=comment)
+
+def getUsersActivity():
+	activity = db.session.query(Video.user,func.count(Video.user)).group_by(Video.user)\
+	.order_by((desc(func.count(Video.user)))).all()
+	app.logger.debug(activity)
+	return jsonify(activity)
+
+def videosMostLiked():
+	mostLiked = db.session.query(Video.title,func.count(Like.video_id))\
+	.join(Video).filter(Like.value==True).group_by(Like.video_id,Video.title)\
+	.order_by((desc(func.count(Like.video_id)))).all()
+	app.logger.debug(mostLiked)
+	return jsonify(mostLiked)
+
+def videosMostDisliked():
+	mostDisliked = db.session.query(Video.title,func.count(Like.video_id))\
+	.join(Video).filter(Like.value==False).group_by(Like.video_id,Video.title)\
+	.order_by((desc(func.count(Like.video_id)))).all()
+	app.logger.debug(mostDisliked)
+	return jsonify(mostDisliked)
+
+def videosMostCommented():
+	mostComented = db.session.query(Video.title,func.count(Comment.video_id))\
+	.join(Video).group_by(Comment.video_id,Video.title)\
+	.order_by((desc(func.count(Comment.video_id)))).all()
+	app.logger.debug(mostComented)
+	return jsonify(mostComented)
+
+def userActivityComments():
+	activity = db.session.query(Comment.user,func.count(Comment.user)).group_by(Comment.user)\
+	.order_by((desc(func.count(Comment.user)))).all()
+	app.logger.debug(activity)
+	return jsonify(activity)
