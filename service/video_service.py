@@ -78,14 +78,10 @@ def postComment(video_id,content):
 		return Response(status=404)
 	user = content['user']
 	text = content['text']
-	query = Comment.query.filter_by(video_id=video_id,user=user).first()
-	if query is None:
-		comment = Comment(video_id=video_id,user=user,text=text)
-		db.session.add(comment)
-		db.session.commit()
-		return Response(status=200)
-	else:
-		return Response(status=400)
+	comment = Comment(video_id=video_id,user=user,text=text)
+	db.session.add(comment)
+	db.session.commit()
+	return Response(status=200)
 
 def getLikes(id):
 	video = Video.query.filter_by(id=id).first()

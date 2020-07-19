@@ -28,7 +28,7 @@ class Video(db.Model):
 	date = db.Column(db.String(10), nullable=False)
 	url =db.Column(db.String(256),nullable=False)
 	thumbnail = db.Column(db.String(256),nullable=False)
-	description =  db.Column(db.String(256))
+	description =  db.Column(db.String(1024))
 	private = db.Column(db.Boolean,nullable=False)
 	weight = db.Column(db.Float,default=0)
 	
@@ -54,8 +54,8 @@ class Comment(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	video_id = db.Column(db.Integer,db.ForeignKey('videos.id'),nullable=False)
 	user = db.Column(db.String(256),nullable=False)
-	text = db.Column(db.String(256), nullable=False)
-	__table_args__ = (db.UniqueConstraint('video_id','user'),)
+	text = db.Column(db.String(1024 ), nullable=False)
+	#__table_args__ = (db.UniqueConstraint('video_id','user'),)
 
 @app.route("/")
 def hello_world():
@@ -71,9 +71,6 @@ def videos(id=None):
 		if id is not None:
 			return video.getVideoById(id)
 		else:
-			#content = request.json
-			#friendList = content["friends"]
-			#return video.getAllVideos(friendList)
 			token = request.headers.get('token')
 			body = {
 				"JWT": token
@@ -126,7 +123,7 @@ def ping():
 	return("Hello")
 
 if __name__=='__main__':
-	#db.drop_all()
-	#db.create_all()
-	#db.session.commit()
+	db.drop_all()
+	db.create_all()
+	db.session.commit()
 	app.run(debug=True,host='0.0.0.0',port=port)
