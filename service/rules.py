@@ -2,6 +2,15 @@ from durable.lang import *
 from __init__ import app, db, Video, Like, Comment
 from datetime import datetime
 
+COEFICIENTS = {
+	'ATIVITY': 2,
+	'REACTIONS': 5,
+	'COMMENTS':1,
+	'DATE_NEW':0.5,
+	'DATE_REASENT':2,
+	'DATE_OLD':10
+}
+
 with ruleset('ranking'):
 	# antecedent
 	@when_all(s.event == 'cantVideos')
@@ -10,7 +19,7 @@ with ruleset('ranking'):
 		app.logger.debug("Se cuenta la actividad de los usuarios")
 		for video in c.s.videos:
 			cantVideos = Video.query.filter(Video.user.like(video['user'])).count()
-			video['weight'] += 0.5*(cantVideos)
+			video['weight'] += COEFICIENTS['ATIVITY']*(cantVideos)
 		c.s.event = 'reactions'
 
 	@when_all(s.event == 'reactions')
@@ -19,7 +28,7 @@ with ruleset('ranking'):
 		for video in c.s.videos:
 			likes = len(list(filter(lambda x: x['value']==True,video['like'])))
 			disLikes = len(list(filter(lambda x: x['value']==False,video['like'])))
-			video['weight'] += 0.7*(likes - disLikes)
+			video['weight'] += 5*(likes - disLikes)
 		c.s.event = 'comments'
 
 	@when_all(s.event == 'comments')
@@ -27,7 +36,7 @@ with ruleset('ranking'):
 		app.logger.debug("Se cuentan los comentarios")
 		for video in c.s.videos:
 			comments = len(video['comments'])
-			video['weight'] += 0.2*(comments)
+			video['weight'] += (comments)
 		c.s.event = 'date'
 
 	@when_all(s.event == 'date')
@@ -37,7 +46,14 @@ with ruleset('ranking'):
 		for video in c.s.videos:
 			videoDate = datetime.strptime(video['date'],'%Y-%m-%d')
 			diference = abs((today - videoDate).days) + 1
-			video['weight'] = video['weight']/(0.3*diference)
+			video['weight'] = video['weight']/(0.5*diference)
+			#if diference < 5:
+			#	video['weight'] = video['weight']/(0.5*diference)
+			#elif deiference < 15:
+			#	video['weight'] = video['weight']/(2*diference)
+			#else:
+			#	app.logger.debug("video muy viejo")
+			#	video['weight'] = video['weight']/(10*diference)
 		c.s.event = 'sort'
 
 

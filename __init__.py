@@ -9,10 +9,12 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object("config.config.Config")
 db = SQLAlchemy(app)
+CORS(app)
 
 port = int(os.environ.get("PORT", 5000))
 
@@ -80,7 +82,8 @@ def videos(id=None):
 			userType = requests.post("https://serene-shelf-10674.herokuapp.com/token",headers=headers, data=data)
 			if userType.status_code == 200:
 				if userType.text[1:6] == "admin":
-					return video.getVideos()
+					videos = video.getVideos()
+					return videos
 				else:
 					content = request.json
 					friendList = request.args.get('friendList').split(",")
