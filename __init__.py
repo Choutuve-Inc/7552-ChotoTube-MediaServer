@@ -117,6 +117,12 @@ def comments(id=None):
 	if request.method == 'GET':
 		return video.getComments(id)
 
+@app.route("/videos/user/<id>")
+def getUSerVideos(id=None):
+	if (id is None):
+		return Response(status=404)
+	app.logger.debug(id)
+	return video.getUserVideo(id)
 
 @app.route("/ping")
 def ping():

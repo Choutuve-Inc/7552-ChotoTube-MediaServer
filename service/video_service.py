@@ -134,3 +134,7 @@ def userActivityComments():
 	.order_by((desc(func.count(Comment.user)))).all()
 	app.logger.debug(activity)
 	return jsonify(activity)
+
+def getUserVideo(id):
+	videos = Video.query.filter(Video.user==id).all()
+	return jsonify(videos)
