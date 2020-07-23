@@ -148,6 +148,10 @@ def videosMostDisliked():
 def videosMostCommented():
 	return video.videosMostCommented()
 
+@app.route("/metrics/videos/day")
+def getVideosPerDay():
+	return video.getVideosPerDay()
+
 if __name__=='__main__':
 	#db.drop_all()
 	#db.create_all()
