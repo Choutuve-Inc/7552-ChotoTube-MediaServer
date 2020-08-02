@@ -7,5 +7,3 @@ install:
 script:
   #Unittest
   - coverage run -m unittest discover
-  #coverage
-  - coverage report -m
