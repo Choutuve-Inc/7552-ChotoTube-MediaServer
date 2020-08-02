@@ -2,4 +2,10 @@ language: python
 python:
   - "3.7"
 install:
-  - pip install -r services/requirements.txt
+  - pip install -r requirements.txt
+
+script:
+  #Unittest
+  - coverage run -m unittest discover
+  #coverage
+  - coverage report -m
