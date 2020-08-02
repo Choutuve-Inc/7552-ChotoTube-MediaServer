@@ -359,6 +359,19 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(comments['date'],video['date'])
         self.assertEqual(comments['cant'],3)
 
+    def test_post_video_wwrong_body(self):
+        video = {
+            "user":"SGB",
+            "title": "otro video",
+            "size": 15500,
+            "url": "dfsdfdg",
+            "thumbnail": "hhsgfhgfhs",
+            "date": "2019-07-21",
+            "private":True
+        }
+        headers = {"Content-Type": 'application/json', 'token':self.token}
+        responcePost = self.app.post('/videos',headers=headers,data=json.dumps(video))
+        self.assertEqual(responcePost.status_code,400)
 
 if __name__ == '__main__':
     unittest.main()

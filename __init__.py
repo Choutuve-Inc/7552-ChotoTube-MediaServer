@@ -102,12 +102,15 @@ def hello_world():
 @app.route("/videos/<int:id>",methods=['GET', 'DELETE'])
 def videos(id=None):
 	if request.method == 'POST':
+		app.logger.info("Post video")
 		content = request.json
 		return createVideo(content)
 	elif request.method == 'GET':
 		if id is not None:
+			app.logger.info("Get video by id")
 			return getVideoById(id)
 		else:
+			app.logger.info("Token verification for feed")
 			token = request.headers.get('token')
 			body = {
 				"JWT": token
@@ -117,46 +120,58 @@ def videos(id=None):
 			userType = requests.post("https://serene-shelf-10674.herokuapp.com/token",headers=headers, data=data)
 			if userType.status_code == 200:
 				if userType.text[1:6] == "admin":
+					app.logger.info("Get all videos admin side")
 					videos = getVideos()
 					return videos
 				else:
+					app.logger.info("Get all videos client side")
 					content = request.json
 					friendList = request.args.get('friendList').split(",")
 					return getAllVideos(friendList)
 			else:
+				app.logger.error('Invalid Token')
 				return Response(status=400)
 	elif request.method == 'DELETE':
 		if id is not None:
+			app.logger.info("Delete video")
 			return deleteVideo(id)
 		else:
-			return Response(status=400)
+			app.logger.error('Invalid video id')
+			return Response(status=404)
 	return
 
 @app.route("/videos/<int:id>/likes",methods=['GET','POST'])
 def likes(id=None):
 	if (id is None):
+		app.logger.error('Invalid video id')
 		return Response(status=404)
 	if request.method == 'POST':
+		app.logger.info("Post like on a video")
 		content = request.json
 		return likeVideo(id,content)
 	if request.method == 'GET':
+		app.logger.info("Get like dislike ratio of a video")
 		return getLikes(id)
 
 @app.route("/videos/<int:id>/comments",methods=['POST','GET'])
 def comments(id=None):
 	if (id is None):
+		app.logger.error('Invalid video id')
 		return Response(status=404)
 	if request.method == 'POST':
+		app.logger.info("Post a comment on a video")
 		content = request.json
 		return postComment(id,content)
 	if request.method == 'GET':
+		app.logger.info("Get all the comments of a video")
 		return getComments(id)
 
 @app.route("/videos/user/<id>")
 def getUSerVideos(id=None):
 	if (id is None):
+		app.logger.error('Invalid user id')
 		return Response(status=404)
-	app.logger.debug(id)
+	app.logger.info("Get all videos of a user")
 	return getUserVideo(id)
 
 @app.route("/ping")
@@ -165,26 +180,32 @@ def ping():
 
 @app.route("/metrics/users/activity")
 def userActivity():
+	app.logger.info("Get all user activity in the platform")
 	return getUsersActivity()
 
 @app.route("/metrics/users/comments")
 def userActivityComments():
+	app.logger.info("Get the amaunto of comments made by video")
 	return userActivityComments()
 
 @app.route("/metrics/videos/likes")
 def videosMostLiked():
+	app.logger.info("Get most liked videos")
 	return videosMostLiked()
 
 @app.route("/metrics/videos/dislikes")
 def videosMostDisliked():
+	app.logger.info("Get most disliked videos")
 	return videosMostDisliked()
 
 @app.route("/metrics/videos/comments")
 def videosMostCommented():
+	app.logger.info("Get most commented videos")
 	return videosMostCommented()
 
 @app.route("/metrics/videos/day")
 def getVideosPerDay():
+	app.logger.info("Get the amaunt of videos posted per day")
 	return getVideosPerDay()
 
 
@@ -205,12 +226,14 @@ def createVideo(content):
 		db.session.commit()
 		return Response(status=200)
 	except Exception as e:
+		app.logger.error("Problem with parameter: ")
 		app.logger.error(e)
 		return Response(status=400)
 
 def getVideoById(id):
 	video = Video.query.filter_by(id=id).first()
 	if video is None:
+		app.logger.error('No video found with that id')
 		return Response(status=404)
 	return jsonify(video)
 
@@ -234,40 +257,52 @@ def deleteVideo(id):
 		db.session.commit()
 		return Response(status=200)
 	else:
+		app.logger.error('No video found with that id')
 		return Response(status=404)
 
 def likeVideo(video_id,content):
 	video = Video.query.filter_by(id=video_id).first()
 	if video is None:
+		app.logger.error('No video found with that id')
 		return Response(status=404)
-	user = content['user']
-	value = content['value']
-	query = Like.query.filter_by(video_id=video_id,user=user).first()
-	if query is None:
-		like = Like(video_id=video_id,user=user,value=value)
-		db.session.add(like)
-	else:
-		if query.value == value:
-			db.session.delete(query)
+	try:
+		user = content['user']
+		value = content['value']
+		query = Like.query.filter_by(video_id=video_id,user=user).first()
+		if query is None:
+			like = Like(video_id=video_id,user=user,value=value)
+			db.session.add(like)
 		else:
-			query.value = not query.value
-	db.session.commit()
-	return Response(status=200)
+			if query.value == value:
+				db.session.delete(query)
+			else:
+				query.value = not query.value
+		db.session.commit()
+		return Response(status=200)
+	except Exception as e:
+		app.logger.error(e)
+		return Response(status=400)
 
 def postComment(video_id,content):
 	video = Video.query.filter_by(id=video_id).first()
 	if video is None:
+		app.logger.error('No video found with that id')
 		return Response(status=404)
-	user = content['user']
-	text = content['text']
-	comment = Comment(video_id=video_id,user=user,text=text)
-	db.session.add(comment)
-	db.session.commit()
-	return Response(status=200)
+	try:
+		user = content['user']
+		text = content['text']
+		comment = Comment(video_id=video_id,user=user,text=text)
+		db.session.add(comment)
+		db.session.commit()
+		return Response(status=200)
+	except Exception as e:
+		app.logger.error(e)
+		return Response(status=400)
 
 def getLikes(id):
 	video = Video.query.filter_by(id=id).first()
 	if video is None:
+		app.logger.error('No video found with that id')
 		return Response(status=404)
 	cantidad_de_likes = Like.query.filter_by(video_id=id,value=True).count()
 	cantidad_de_dislikes = Like.query.filter_by(video_id=id,value=False).count()
@@ -280,6 +315,7 @@ def getLikes(id):
 def getComments(id):
 	video = Video.query.filter_by(id=id).first()
 	if video is None:
+		app.logger.error('No video found with that id')
 		return Response(status=404)
 	comment = Comment.query.filter_by(video_id=id).all()
 	return jsonify(comments=comment)
@@ -393,7 +429,6 @@ with ruleset('ranking'):
 		for video in c.s.videos:
 			videoDate = datetime.strptime(video['date'],'%Y-%m-%d')
 			diference = abs((today - videoDate).days) + 1
-			app.logger.info(type(diference))
 			if (diference < 5):
 				video['weight'] = video['weight']/(COEFICIENTS['DATE_NEW']*diference)
 			else:
@@ -409,7 +444,7 @@ with ruleset('ranking'):
 
 
 
-######## MAIN ######################3
+######## MAIN ######################
 
 if __name__=='__main__':
 	#db.drop_all()
