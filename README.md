@@ -44,5 +44,7 @@ coverage report -m
 Para el coberage configure en el archivo .coveragerc que ingnore los site-packages
 
 ##Nota
+```
 Cuando queria ejecutar los test me tiraba error de que no detectaba los paquetes.
 Como no supe resolverlo puse todo el codigo en un solo archivo, se encuentra todo en el init . Por favor disculpeme la desprolijidad.
+```
