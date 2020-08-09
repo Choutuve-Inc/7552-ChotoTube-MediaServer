@@ -47,25 +47,25 @@ Para el coberage configure en el archivo .coveragerc que ingnore los site-packag
 
 Primero se debe hacer el build de la imagen como esta especificado antes.
 Luego se hace login  Heroku con
-´´´
+```
 heroku login
-´´´
+```
 Nos logeamos al registry de Herku
-´´´
+```
 heroku container:login
-´´´
+```
 Se hace el tag de la imagen buildeada al registry
-´´´
+```
 docker tag 7552-ChotoTube-MediaServer  registry.heroku.com/arcane-thicket-79100/web
-´´´
+```
 Se pushea la imagen
-´´´
+```
 docker push registry.heroku.com/arcane-thicket-79100/web
-´´´
+```
 Se hace el releace de la imagen
-´´´
+```
 heroku container:release web -a arcane-thicket-79100
-´´´
+```
 
 ## Nota
 
